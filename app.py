@@ -29,6 +29,7 @@ def display_questions(survey_questions, idx):
         survey_choices=satisfaction_survey.questions[idx].choices
         return render_template("questions.html",survey_questions=survey_questions, survey_choices=survey_choices)
     except IndexError:
+        flash("That question does not exist. Please restart survey.", 'error')
         return redirect(f"/")
     
 

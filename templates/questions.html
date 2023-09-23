@@ -1,29 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0" />
-    <title>Survey Questions</title>
-  </head>
-  <body>
-    <h1>Answer the following questions:</h1>
-    <form
-      action="/answer"
-      method="POST">
-      <p>{{survey_questions}}</p>
-      <div name="response">
-        {% for choice in survey_choices %}
-        <input
-          type="radio"
-          name="response"
-          value="{{choice}}" />
-        <label for="{{choice}}">{{choice}}</label>
-      </div>
-      {% endfor %}
-      <br />
-      <button>Go to next question</button>
-    </form>
-  </body>
-</html>
+{% extends 'base.html' %} {% block title %}Survey Questions{% endblock %}{%
+block content %}
+<h1>Answer the following questions:</h1>
+<form
+  action="/answer"
+  method="POST">
+  <p>{{survey_questions}}</p>
+  <div name="response">
+    {% for choice in survey_choices %}
+    <input
+      type="radio"
+      name="response"
+      value="{{choice}}" />
+    <label for="{{choice}}">{{choice}}</label>
+  </div>
+  {% endfor %}
+  <br />
+  <button>Go to next question</button>
+</form>
+{% endblock %}
