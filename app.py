@@ -26,17 +26,16 @@ def begin_survey():
 
 @app.route('/<survey_questions>/<int:idx>')
 def display_questions(survey_questions, idx):
-    try:
+    if idx == len(session["responses"]) :
         survey_questions=satisfaction_survey.questions[idx].question
         survey_choices=satisfaction_survey.questions[idx].choices
-        next_question_idx=len(session["responses"])   
-        if len(session["responses"]) == next_question_idx and len(session["responses"]) < len(satisfaction_survey.questions):
-            return render_template("questions.html",survey_questions=survey_questions, survey_choices=survey_choices)
+        return render_template("questions.html",survey_questions=survey_questions,survey_choices=survey_choices)
+
+    elif idx in range(len(satisfaction_survey.questions)):
+        flash("You must complete questions in sequential order", 'error')
+        return redirect(f"/questions/{len(session['responses'])}")
     
-        else:
-            return "<h1>that is not the next question.</h1>"
-        # return render_template("questions.html",survey_questions=survey_questions, survey_choices=survey_choices)
-    except IndexError:
+    else:
         flash("That question does not exist. Please restart survey.", 'error')
         return redirect(f"/")
     
@@ -56,10 +55,4 @@ def handle_answer():
     else:
         return redirect(f"/questions/{next_question_idx}")
     
-    # if len(session["responses"]) == next_question_idx and len(session["responses"]) < len(satisfaction_survey.questions):
-    #     return redirect(f"/questions/{next_question_idx}")
-    
-    # else:
-    #     return "<h1>that is not the next question.</h1>"
-    # elif len(session["responses"]) < len(satisfaction_survey.questions):
-    #     return redirect(f"/questions/{next_question_idx}")
+
