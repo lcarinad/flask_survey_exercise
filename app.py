@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, flash
+from flask import Flask, request, render_template, redirect, flash, session
 from surveys import satisfaction_survey
 from flask_debugtoolbar import DebugToolbarExtension
 
@@ -7,10 +7,6 @@ app.config['SECRET_KEY'] = "shh-its-a-secret"
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS']= False
 
 debug = DebugToolbarExtension(app)
-
-responses = []
-
-
 
 
 @app.route('/')
@@ -22,12 +18,24 @@ def home():
     return render_template("home.html", survey_title=survey_title, survey_instructions=survey_instructions)
 
 
+@app.route("/begin", methods=["POST"])
+def begin_survey():
+    session["responses"] = []
+    return redirect("/survey_questions/0")
+
+
 @app.route('/<survey_questions>/<int:idx>')
 def display_questions(survey_questions, idx):
     try:
         survey_questions=satisfaction_survey.questions[idx].question
         survey_choices=satisfaction_survey.questions[idx].choices
-        return render_template("questions.html",survey_questions=survey_questions, survey_choices=survey_choices)
+        next_question_idx=len(session["responses"])   
+        if len(session["responses"]) == next_question_idx and len(session["responses"]) < len(satisfaction_survey.questions):
+            return render_template("questions.html",survey_questions=survey_questions, survey_choices=survey_choices)
+    
+        else:
+            return "<h1>that is not the next question.</h1>"
+        # return render_template("questions.html",survey_questions=survey_questions, survey_choices=survey_choices)
     except IndexError:
         flash("That question does not exist. Please restart survey.", 'error')
         return redirect(f"/")
@@ -38,10 +46,20 @@ def handle_answer():
 
     survey_questions=satisfaction_survey.questions
     usr_responses = request.form['response']
+    responses = session["responses"]
     responses.append(usr_responses)
-    next_question_idx=len(responses)   
-
-    if len(responses) == len(satisfaction_survey.questions):
+    session["responses"] = responses
+    next_question_idx=len(session["responses"])   
+    
+    if len(session["responses"]) == len(satisfaction_survey.questions):
         return render_template("confirmation.html")
-    elif len(responses) < len(satisfaction_survey.questions):
+    else:
         return redirect(f"/questions/{next_question_idx}")
+    
+    # if len(session["responses"]) == next_question_idx and len(session["responses"]) < len(satisfaction_survey.questions):
+    #     return redirect(f"/questions/{next_question_idx}")
+    
+    # else:
+    #     return "<h1>that is not the next question.</h1>"
+    # elif len(session["responses"]) < len(satisfaction_survey.questions):
+    #     return redirect(f"/questions/{next_question_idx}")

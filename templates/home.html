@@ -3,7 +3,9 @@ content %}
 <h1>{{survey_title}}</h1>
 <p>{{survey_instructions}}</p>
 
-<form action="/survey_questions/0">
+<form
+  action="/begin"
+  method="post">
   <input type="submit" />
 </form>
 {% endblock %}
